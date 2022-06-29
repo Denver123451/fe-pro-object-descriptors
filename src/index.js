@@ -8,14 +8,30 @@
  *
  * @returns string[]
  */
-export const getKeysByDescriptor = (object, descriptor) => {};
+export const getKeysByDescriptor = (object, descriptor) => {
+  let resoult = [];
+  for (const key in Object.getOwnPropertyDescriptors(object)) {
+    if (Object.getOwnPropertyDescriptor(object, key)[descriptor] === true) {
+      resoult.push(key);
+    }
+  }
+  return resoult;
+};
 
 /**
  * Должен вернуть true если объект был заморожен каким-либо методом заморозки freeze, seal, preventExtensions иначе false
  * @param {Object} object
  * @returns {boolean}
  */
-export const isObjectAnyFrozen = (object) => {};
+export const isObjectAnyFrozen = (object) => {
+  if (!Object.isExtensible(object)) {
+    return true;
+  } else if (Object.isSealed(object)) {
+    return true;
+  } else if (Object.isFrozen(object)) {
+    return true;
+  } else return false;
+};
 
 /**
  * Принимает объект и строку. Мы должны вернуть НОВЫЙ объект(копию оригинального), в котором
@@ -27,7 +43,25 @@ export const isObjectAnyFrozen = (object) => {};
  *
  * @returns {Object}
  */
-export const assignLockedValues = (object, propertyName) => {};
+export const assignLockedValues = (object, propertyName) => {
+  let newObj = Object.assign({}, object);
+  if (newObj.hasOwnProperty(propertyName)) {
+    Object.defineProperty(newObj, propertyName, {
+      writable: false,
+      configurable: true,
+      enumerable: true,
+    });
+    return newObj;
+  } else {
+    Object.defineProperty(newObj, propertyName, {
+      value: null,
+      writable: false,
+      configurable: true,
+      enumerable: true,
+    });
+  }
+  return newObj;
+};
 
 /**
  * Принимает объект и возвращает его копию, только абсолютно замороженную
@@ -35,4 +69,7 @@ export const assignLockedValues = (object, propertyName) => {};
  * @param {Object} object
  * @returns {Object}
  */
-export const freezeAllInObject = (object) => {};
+export const freezeAllInObject = (object) => {
+  let newObj = Object.assign({}, object);
+  return Object.freeze(newObj);
+};
